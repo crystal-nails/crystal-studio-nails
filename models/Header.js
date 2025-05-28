@@ -2,12 +2,12 @@ import mongoose from 'mongoose';
 
 
 const headerSchema = new mongoose.Schema({
-  navigation1:{ type: String, required: true },
-  navigation2: { type: String, required: true },
-  navigation3: { type: String, required: true },
-  navigation4: { type: String, required: true },
-  navigation5: { type: String, required: true },
-  navigation6: { type: String, required: true },
+  navigation1:{ type: String },
+  navigation2: { type: String },
+  navigation3: { type: String },
+  navigation4: { type: String },
+  navigation5: { type: String },
+  navigation6: { type: String },
   bookingLink: { type: String, required: true },
 });
 
