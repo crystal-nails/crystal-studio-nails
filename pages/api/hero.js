@@ -13,14 +13,17 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'POST') {
     try {
-      const { backgroundImage, headline, subtext } = req.body;
+      const { headline, subtext } = req.body;
+
+      if (!headline || !subtext) {
+        return res.status(400).json({ error: 'Заголовок и подтекст обязательны' });
+      }
 
       let hero = await Hero.findOne();
 
       if (!hero) {
-        hero = new Hero({ backgroundImage, headline, subtext });
+        hero = new Hero({ headline, subtext });
       } else {
-        hero.backgroundImage = backgroundImage;
         hero.headline = headline;
         hero.subtext = subtext;
       }

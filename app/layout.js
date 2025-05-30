@@ -1,33 +1,25 @@
-import { Alegreya_Sans_SC } from 'next/font/google';
-import { Pompiere } from 'next/font/google';
-import { Great_Vibes, Playfair_Display } from 'next/font/google';
-import { Montserrat } from 'next/font/google';
 import './globals.css';
+import { Alegreya_Sans_SC, Pompiere, Great_Vibes, Playfair_Display, Montserrat } from 'next/font/google';
 import { LoadingProvider } from './contex/LoadingContext';
 import GlobalLoader from './components/GlobalLoader';
 
-const pompiere = Pompiere({
-  subsets: ['latin'],
-  weight: ['400'],
-  variable: '--font-allura',
-});
-
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-montserrat',
-});
-
+// Google Fonts
 const alegreyaSansSC = Alegreya_Sans_SC({
   subsets: ['latin'],
   weight: ['100', '300', '400', '500', '700', '800', '900'],
   variable: '--font-alegreya-sans-sc',
 });
 
+const pompiere = Pompiere({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-pompiere',
+});
+
 const greatVibes = Great_Vibes({
   subsets: ['latin'],
   weight: ['400'],
-  variable: '--font-greatVibes',
+  variable: '--font-great-vibes',
 });
 
 const playfair = Playfair_Display({
@@ -36,6 +28,13 @@ const playfair = Playfair_Display({
   variable: '--font-playfair',
 });
 
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-montserrat',
+});
+
+// ✅ Используем metadata вместо <Head>
 export const metadata = {
   title: 'Nagelstudio – Crystal Nails Studio',
   description: 'Buchen Sie Ihren Termin über WhatsApp: +49 160 15 00 544.',
@@ -49,19 +48,17 @@ export const metadata = {
     apple: '/favicon/apple-touch-icon.png',
   },
   manifest: '/favicon/site.webmanifest',
-  appleWebApp: {
-    title: 'Crystal nails',
+  other: {
+    'preload-image': '<link rel="preload" as="image" href="/uploads/hero/hero.webp">'
   },
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ru" className={`${pompiere.variable} ${alegreyaSansSC.variable} ${greatVibes.variable} ${playfair.variable} ${montserrat.variable}`}>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Playwrite+Danmark+Loopet&display=swap" rel="stylesheet" />
-      </head>
+    <html
+      lang="ru"
+      className={`${alegreyaSansSC.variable} ${pompiere.variable} ${greatVibes.variable} ${playfair.variable} ${montserrat.variable}`}
+    >
       <body className="antialiased font-sans">
         <LoadingProvider>
           <GlobalLoader />
