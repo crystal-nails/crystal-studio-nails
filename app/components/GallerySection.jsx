@@ -47,7 +47,7 @@ const GalleryPage = () => {
 
   return (
     <section id="section-2" className="p-4 container mx-auto">
-      <h2 className="text-5xl font-bold mb-4">Fotos unserer Arbeiten</h2>
+      <h2 className="text-5xl font-bold mb-4 text-[#B8860B]">Fotos unserer Arbeiten</h2>
       <div className="flex flex-col md:flex-row gap-4 items-start">
         
         <div className="w-full md:w-[400px] mx-auto">

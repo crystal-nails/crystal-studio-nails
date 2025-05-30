@@ -85,7 +85,7 @@ const ProposSliderSection = ({ items = [] }) => {
                 alt={item.headline}
                 className="w-full h-60 object-cover transform duration-300 group-hover:scale-105"
               />
-              <h3 className="flex text-center justify-center items-center text-xl font-bold min-h-30 overflow-hidden p-2 bg-[#073891]">
+              <h3 className="flex text-center justify-center items-center text-xl font-bold min-h-30 overflow-hidden p-2 text-[#B8860B] bg-[#073891]">
                 {item.headline}
               </h3>
 
@@ -97,7 +97,7 @@ const ProposSliderSection = ({ items = [] }) => {
                     }`}
                   >
                     <div className="p-4">
-                      <p className="mb-2 overflow-y-auto max-h-[80%]">{item.subtext}</p>
+                      <p className="mb-2 overflow-y-auto max-h-[80%] text-[#B8860B]">{item.subtext}</p>
                       <button
                         onClick={(e) => handleToggleExpand(item._id || index, e)}
                         className="mt-2 text-md font-bold py-1 px-3 rounded-full bg-blue-700 hover:bg-blue-800 cursor-pointer"

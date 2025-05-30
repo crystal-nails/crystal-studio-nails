@@ -13,8 +13,8 @@ export default function MapSection() {
 
   return (
     <section id="section-3" className="p-8 container mx-auto">
-      <h2 className="text-5xl font-bold mb-4">Adresse</h2>
-      <p className="mb-4">{address}</p>
+      <h2 className="text-5xl font-bold mb-4 text-[#B8860B]">Adresse</h2>
+      <p className="mb-4 text-[#B8860B]">{address}</p>
       {address && (
         <iframe
           title="Google Maps"
