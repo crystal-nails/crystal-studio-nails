@@ -2,7 +2,7 @@ import dbConnect from '../utils/dbConnect';
 import HeroModel from '../models/Hero';
 
 import Header from './components/Header';
-import Hero from './components/Hero';
+import HeroComp from './components/HeroComp';
 import ProposSection from './components/Propos';
 import GallerySection from './components/GallerySection';
 import MapSection from './components/MapSection';
@@ -17,7 +17,7 @@ export default async function HomePage() {
   return (
     <>
       <Header />
-      <Hero hero={hero} />
+      <HeroComp hero={hero} />
       <DiscountBanner />
       <AboutUsSections />
       <ProposSection />

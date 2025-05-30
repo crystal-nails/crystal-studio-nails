@@ -1,10 +1,11 @@
 import Image from 'next/image';
-import dbConnect from '../utils/dbConnect';
-import HeroModel from '../models/Hero';
 
-export default async function Hero() {
+import Hero from '../../models/Hero';
+import dbConnect from '../../utils/dbConnect';
+
+export default async function HeroComp() {
   await dbConnect();
-  const hero = await HeroModel.findOne().lean();
+  const hero = await Hero.findOne().lean();
 
   if (!hero) return null;
 
