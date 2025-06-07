@@ -10,52 +10,16 @@ export default function AdminAboutSection() {
   const [message, setMessage] = useState(null);
   const { setLoading } = useLoading();
 
+
+  const [tempImages, setTempImages] = useState({}); 
+
   useEffect(() => {
     setLoading(true);
     fetch('/api/about-sections')
       .then((res) => res.json())
       .then((data) => setSections(data.sections))
       .finally(() => setLoading(false));
-  }, []);
-
-  const handleSave = async (index) => {
-    const sec = sections[index];
-    const method = sec._id ? 'PATCH' : 'POST';
-
-    const body = {
-      id: sec._id,
-      title: sec.title,
-      content: sec.content,
-      imageUrl: sec.imageUrl,
-      cta: sec.cta,
-      order: index + 1,
-    };
-
-    try {
-      setSavingIndex(index);
-      const res = await fetch('/api/about-sections', {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) throw new Error();
-
-      const data = await res.json();
-      if (!sec._id && data._id) {
-        setSections((prev) =>
-          prev.map((s, i) => (i === index ? { ...s, _id: data._id } : s))
-        );
-      }
-
-      setMessage({ type: 'success', text: 'Секция сохранена!' });
-    } catch {
-      setMessage({ type: 'error', text: 'Ошибка при сохранении секции.' });
-    } finally {
-      setSavingIndex(null);
-      setTimeout(() => setMessage(null), 3000);
-    }
-  };
+  }, [setLoading]);
 
   const handleChange = (index, key, value) => {
     setSections((prev) =>
@@ -63,42 +27,87 @@ export default function AdminAboutSection() {
     );
   };
 
-  const handleImageUpload = async (index, files) => {
+  const handleImageChange = (index, file) => {
+    setTempImages((prev) => ({ ...prev, [index]: file }));
+
+    const previewUrl = URL.createObjectURL(file);
+
+    setSections((prev) =>
+      prev.map((s, i) => (i === index ? { ...s, localPreview: previewUrl } : s))
+    );
+  };
+
+  const handleSave = async (index) => {
     const sec = sections[index];
+    let imageUrl = sec.imageUrl;
 
-    if (!sec._id) {
-      setMessage({
-        type: 'error',
-        text: 'Сначала сохраните секцию перед загрузкой изображения.',
-      });
-      setTimeout(() => setMessage(null), 3000);
-      return;
-    }
-
-    const formData = new FormData();
-    if (files.length > 0) {
-      formData.append('file', files[0]);
-    } else {
-      return;
-    }
+    setSavingIndex(index);
 
     try {
-      const res = await fetch(`/api/uploadAboutImage?id=${sec._id}`, {
-        method: 'POST',
-        body: formData,
+
+      if (tempImages[index]) {
+        const formData = new FormData();
+        formData.append('file', tempImages[index]);
+
+        const uploadRes = await fetch(`/api/uploadAboutImage?id=${sec._id}`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) throw new Error('Ошибка загрузки изображения');
+
+        const uploadData = await uploadRes.json();
+        if (!uploadData?.imageUrl) throw new Error('Ошибка загрузки изображения');
+
+        imageUrl = uploadData.imageUrl;
+      }
+
+      const method = sec._id ? 'PATCH' : 'POST';
+
+      const body = {
+        id: sec._id,
+        title: sec.title,
+        content: sec.content,
+        imageUrl,
+        cta: sec.cta,
+        order: index + 1,
+      };
+
+      const res = await fetch('/api/about-sections', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
       });
+
+      if (!res.ok) throw new Error('Ошибка сохранения секции');
 
       const data = await res.json();
 
-      if (data?.imageUrl) {
-        setSections((prev) =>
-          prev.map((s, i) => (i === index ? { ...s, imageUrl: data.imageUrl } : s))
-        );
-      } else if (data?.error) {
-        console.error('Ошибка загрузки изображения:', data.error);
-      }
-    } catch (err) {
-      console.error('Ошибка при загрузке:', err);
+      setSections((prev) =>
+        prev.map((s, i) =>
+          i === index
+            ? {
+                ...s,
+                ...(data.section || { _id: data._id, ...body }),
+                localPreview: null,
+              }
+            : s
+        )
+      );
+
+      setTempImages((prev) => {
+        const copy = { ...prev };
+        delete copy[index];
+        return copy;
+      });
+
+      setMessage({ type: 'success', text: 'Секция сохранена!' });
+    } catch (error) {
+      console.error(error);
+      setMessage({ type: 'error', text: 'Ошибка при сохранении секции.' });
+    } finally {
+      setSavingIndex(null);
+      setTimeout(() => setMessage(null), 3000);
     }
   };
 
@@ -107,13 +116,18 @@ export default function AdminAboutSection() {
     const items = Array.from(sections);
     const [moved] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, moved);
+
     setSections(items);
 
-    await fetch('/api/reorderAbout', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ order: items.map((s) => s._id) }),
-    });
+    try {
+      await fetch('/api/reorderAbout', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order: items.map((s) => s._id) }),
+      });
+    } catch (err) {
+      console.error('Ошибка при обновлении порядка секций', err);
+    }
   };
 
   const handleSectionDelete = async (id) => {
@@ -189,7 +203,12 @@ export default function AdminAboutSection() {
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
               {sections.map((sec, i) => (
-                <Draggable draggableId={sec._id || `new-${i}`} index={i} key={sec._id || `new-${i}`}>
+                <Draggable
+                  draggableId={sec._id || `new-${i}`}
+                  index={i}
+                  key={sec._id || `new-${i}`}
+                  isDragDisabled={!sec._id}
+                >
                   {(provided) => (
                     <div
                       ref={provided.innerRef}
@@ -220,24 +239,30 @@ export default function AdminAboutSection() {
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => handleImageUpload(i, e.target.files)}
+                        onChange={(e) => {
+                          if (e.target.files.length > 0) {
+                            handleImageChange(i, e.target.files[0]);
+                          }
+                        }}
+                        disabled={!sec._id}
                       />
-                      {sec.imageUrl?.url && (
-                        <div className="grid grid-cols-1 gap-2">
-                          <img
-                            src={sec.imageUrl.url}
-                            alt="Изображение"
-                            className="rounded shadow max-h-32 object-cover"
-                          />
-                        </div>
+                      {(sec.localPreview || sec.imageUrl?.url) && (
+                        <img
+                          src={sec.localPreview || sec.imageUrl.url}
+                          alt="Изображение"
+                          className="rounded shadow max-h-32 object-cover"
+                        />
                       )}
+
                       <div className="flex gap-4 mt-2">
-                        <button
-                          onClick={() => handleSectionDelete(sec._id)}
-                          className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                        >
-                          Удалить секцию
-                        </button>
+                        {sec._id && (
+                          <button
+                            onClick={() => handleSectionDelete(sec._id)}
+                            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                          >
+                            Удалить секцию
+                          </button>
+                        )}
                         <button
                           onClick={() => handleSave(i)}
                           disabled={savingIndex === i}

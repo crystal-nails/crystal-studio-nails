@@ -16,7 +16,7 @@ export default function DiscountBanner() {
       {discount?.enabled ? (
         <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded">
           <h3 className="text-xl font-bold text-yellow-800">
-            {discount.reason}: -{discount.amount} Rabatt
+            {discount.reason}: {discount.amount} Rabatt
           </h3>
           <p className="text-yellow-700 mt-1">{discount.description}</p>
         </div>

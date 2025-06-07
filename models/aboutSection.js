@@ -8,7 +8,7 @@ const imageSchema = new mongoose.Schema({
 const aboutSectionSchema = new mongoose.Schema({
   title: String,
   content: String,
-  imageUrl: imageSchema, 
+  imageUrl: imageSchema,
   cta: String,
   order: Number,
 });
