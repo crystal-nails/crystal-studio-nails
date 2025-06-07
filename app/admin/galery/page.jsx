@@ -66,7 +66,7 @@ export default function AdminGalleryPage() {
         </div>
       )}
 
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex flex-col items-center gap-4 mb-6">
         <input
           type="file"
           ref={fileRef}
